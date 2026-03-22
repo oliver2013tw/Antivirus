@@ -14,21 +14,28 @@
 </head>
 <body>
 
-  <div id="scan-line"></div>
   <div id="grid-overlay"></div>
 
   <header id="site-header">
     <div id="header-inner">
       <div id="logo-block">
-        <span id="logo-bracket">[</span>
+        <span class="logo-bracket">[</span>
         <span id="logo-text">SENTINEL</span>
-        <span id="logo-bracket">]</span>
-        <span id="logo-sub">// 哨兵系統 v2.5.1</span>
+        <span class="logo-bracket">]</span>
+        <span id="logo-sub">// 哨兵系統 v2.6.0</span>
       </div>
       <nav id="main-nav">
         <button class="nav-tab active" data-target="module-hash">
           <span class="nav-icon">◈</span>
           <span class="nav-label">檔案分析</span>
+        </button>
+        <button class="nav-tab" data-target="module-malware">
+          <span class="nav-icon">☣</span>
+          <span class="nav-label">惡意軟體</span>
+        </button>
+        <button class="nav-tab" data-target="module-urlcheck">
+          <span class="nav-icon">⬡</span>
+          <span class="nav-label">URL 檢查</span>
         </button>
         <button class="nav-tab" data-target="module-meta">
           <span class="nav-icon">◉</span>
@@ -52,16 +59,13 @@
 
   <main id="main-content">
 
-    <!-- ═══════════════════════════════════════════════════
-         模組一：進階靜態檔案與 Hash 分析器
-    ═══════════════════════════════════════════════════ -->
+    <!-- MOD_01：進階靜態檔案與 Hash 分析器 -->
     <section id="module-hash" class="module active" aria-label="檔案 Hash 分析器">
       <div class="module-header">
         <div class="module-id">MOD_01</div>
         <h2 class="module-title">進階靜態檔案 & Hash 分析器</h2>
         <div class="module-desc">本地端解析 · 不上傳任何數據至伺服器 · 使用 Web Crypto API</div>
       </div>
-
       <div class="module-body">
         <div id="hash-drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="拖曳檔案至此或點擊選擇">
           <div class="drop-zone-inner">
@@ -76,7 +80,7 @@
           <div class="results-grid-2col">
             <div class="info-card">
               <div class="card-label">// 檔案資訊</div>
-              <table class="data-table" id="file-info-table">
+              <table class="data-table">
                 <tbody>
                   <tr><td class="td-key">檔案名稱</td><td class="td-val" id="fi-name">—</td></tr>
                   <tr><td class="td-key">檔案大小</td><td class="td-val" id="fi-size">—</td></tr>
@@ -88,9 +92,7 @@
             <div class="info-card">
               <div class="card-label">// 雜湊值 (Hash Digest)</div>
               <div class="hash-progress-area" id="hash-progress-area">
-                <div class="hash-computing">
-                  <span class="spinner">◌</span> 計算中...
-                </div>
+                <div class="hash-computing"><span class="spinner">◌</span> 計算中...</div>
               </div>
               <table class="data-table hidden" id="hash-table">
                 <tbody>
@@ -122,11 +124,11 @@
 
           <div class="info-card full-width">
             <div class="card-label-row">
-              <div class="card-label">// 十六進位查看器 (Hex Viewer) — 前 512 Bytes</div>
+              <div class="card-label">// 十六進位查看器 (Hex Viewer) — 前 2048 Bytes</div>
               <div class="hex-legend">
-                <span class="hex-legend-item"><span class="hex-col-head">OFFSET</span></span>
-                <span class="hex-legend-item"><span class="hex-col-head">HEX</span></span>
-                <span class="hex-legend-item"><span class="hex-col-head">ASCII</span></span>
+                <span class="hex-col-head">OFFSET</span>
+                <span class="hex-col-head">HEX DUMP</span>
+                <span class="hex-col-head">ASCII</span>
               </div>
             </div>
             <div id="hex-viewer" class="hex-viewer-container">
@@ -137,16 +139,154 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════
-         模組二：數位隱私脫敏器
-    ═══════════════════════════════════════════════════ -->
-    <section id="module-meta" class="module hidden" aria-label="數位隱私脫敏器">
+    <!-- MOD_02：惡意軟體靜態偵測引擎 -->
+    <section id="module-malware" class="module hidden" aria-label="惡意軟體偵測">
       <div class="module-header">
         <div class="module-id">MOD_02</div>
+        <h2 class="module-title">惡意軟體靜態偵測引擎</h2>
+        <div class="module-desc">本地端特徵碼比對 · 可疑字串掃描 · PE / 檔案結構異常分析 · 完全不上傳數據</div>
+      </div>
+      <div class="module-body">
+        <div id="malware-drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="拖曳檔案進行掃描">
+          <div class="drop-zone-inner">
+            <div class="drop-icon">☣</div>
+            <div class="drop-primary">拖曳可疑檔案至此進行靜態分析</div>
+            <div class="drop-secondary">EXE · DLL · PDF · Office 文件 · ZIP · 腳本檔案 · 完全本地端處理</div>
+          </div>
+          <input type="file" id="malware-file-input" class="visually-hidden" aria-label="選擇檔案掃描" />
+        </div>
+
+        <div id="malware-results" class="results-panel hidden">
+          <div id="malware-verdict-banner" class="verdict-banner verdict-clean">
+            <div class="verdict-icon" id="verdict-icon">◈</div>
+            <div class="verdict-body">
+              <div class="verdict-title" id="verdict-title">分析中...</div>
+              <div class="verdict-sub"   id="verdict-sub"></div>
+            </div>
+            <div class="verdict-score-block">
+              <div class="verdict-score" id="verdict-score">—</div>
+              <div class="verdict-score-label">威脅分數 / 100</div>
+            </div>
+          </div>
+
+          <div class="results-grid-3col">
+            <div class="info-card">
+              <div class="card-label">// 檔案結構分析</div>
+              <table class="data-table">
+                <tbody id="malware-struct-tbody"></tbody>
+              </table>
+            </div>
+            <div class="info-card">
+              <div class="card-label">// 特徵碼比對</div>
+              <div id="sig-match-list" class="sig-match-list"></div>
+            </div>
+            <div class="info-card">
+              <div class="card-label">// 可疑字串偵測</div>
+              <div id="suspicious-strings-list" class="sig-match-list"></div>
+            </div>
+          </div>
+
+          <div class="info-card full-width">
+            <div class="card-label">// 掃描日誌</div>
+            <div id="malware-log" class="malware-log"></div>
+          </div>
+
+          <div class="info-card full-width">
+            <div class="card-label">// VirusTotal 雜湊交叉驗證</div>
+            <div class="sanitize-action-row">
+              <div class="sanitize-desc">
+                <span class="tag tag-info">ℹ</span>
+                系統已計算檔案 SHA-256。點擊後將在新分頁開啟 VirusTotal 查詢頁面，僅提交雜湊值進行比對，<strong>不上傳任何檔案本體</strong>。
+              </div>
+              <button id="vt-lookup-btn" class="action-btn primary-btn" disabled>
+                <span>◈</span> 在 VirusTotal 查詢雜湊值
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOD_03：URL 安全深度檢查 -->
+    <section id="module-urlcheck" class="module hidden" aria-label="URL 安全檢查">
+      <div class="module-header">
+        <div class="module-id">MOD_03</div>
+        <h2 class="module-title">URL 安全深度檢查</h2>
+        <div class="module-desc">結構解析 · URLhaus 黑名單查詢 · 混淆偵測 · 釣魚風險特徵評估</div>
+      </div>
+      <div class="module-body">
+        <div class="input-panel">
+          <div class="input-row">
+            <div class="input-wrapper">
+              <span class="input-prefix">URL://</span>
+              <input
+                type="text"
+                id="urlcheck-input"
+                class="text-input"
+                placeholder="貼入完整 URL (例：https://suspicious-site.com/path?q=../etc/passwd)"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <button id="urlcheck-scan-btn" class="action-btn primary-btn">
+              <span>⬡</span> 深度檢查
+            </button>
+          </div>
+          <div class="input-hint">支援 http · https · ftp 協議 · 可貼入含參數與 Fragment 的完整 URL</div>
+        </div>
+
+        <div id="urlcheck-results" class="results-panel hidden">
+          <div id="url-verdict-banner" class="verdict-banner verdict-clean">
+            <div class="verdict-icon" id="url-verdict-icon">◈</div>
+            <div class="verdict-body">
+              <div class="verdict-title" id="url-verdict-title">分析中...</div>
+              <div class="verdict-sub"   id="url-verdict-sub"></div>
+            </div>
+            <div class="verdict-score-block">
+              <div class="verdict-score" id="url-verdict-score">—</div>
+              <div class="verdict-score-label">風險分數 / 100</div>
+            </div>
+          </div>
+
+          <div class="results-grid-2col">
+            <div class="info-card">
+              <div class="card-label">// URL 結構解析</div>
+              <table class="data-table">
+                <tbody id="url-struct-tbody"></tbody>
+              </table>
+            </div>
+            <div class="info-card">
+              <div class="card-label">// 風險特徵偵測</div>
+              <div id="url-risk-list" class="sig-match-list"></div>
+            </div>
+          </div>
+
+          <div class="results-grid-2col">
+            <div class="info-card">
+              <div class="card-label">// URLhaus 黑名單查詢結果</div>
+              <div id="urlhaus-result" class="api-result-block"></div>
+            </div>
+            <div class="info-card">
+              <div class="card-label">// 外部驗證工具</div>
+              <div id="url-external-links" class="external-links-list"></div>
+            </div>
+          </div>
+
+          <div class="info-card full-width">
+            <div class="card-label">// URL 解碼 & 重組分析</div>
+            <div id="url-decoded-panel" class="url-decoded-panel"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOD_04：數位隱私脫敏器 -->
+    <section id="module-meta" class="module hidden" aria-label="數位隱私脫敏器">
+      <div class="module-header">
+        <div class="module-id">MOD_04</div>
         <h2 class="module-title">數位隱私脫敏器</h2>
         <div class="module-desc">提取圖片 EXIF 隱私資訊 · Canvas 重繪徹底抹除 Metadata</div>
       </div>
-
       <div class="module-body">
         <div id="meta-drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="拖曳圖片至此">
           <div class="drop-zone-inner">
@@ -156,7 +296,6 @@
           </div>
           <input type="file" id="meta-file-input" class="visually-hidden" accept="image/*" aria-label="選擇圖片" />
         </div>
-
         <div id="meta-results" class="results-panel hidden">
           <div class="results-grid-2col">
             <div class="info-card">
@@ -164,7 +303,7 @@
               <div id="meta-image-preview" class="image-preview-box">
                 <img id="meta-preview-img" src="" alt="圖片預覽" />
               </div>
-              <div class="preview-meta-bar" id="preview-meta-bar">
+              <div class="preview-meta-bar">
                 <span id="prev-filename">—</span>
                 <span id="prev-dimensions">—</span>
               </div>
@@ -173,16 +312,13 @@
               <div class="card-label">// EXIF 隱私資訊掃描結果</div>
               <div id="exif-risk-banner" class="risk-banner hidden"></div>
               <table class="data-table" id="exif-table">
-                <thead>
-                  <tr><th>欄位</th><th>數值</th><th>風險</th></tr>
-                </thead>
+                <thead><tr><th>欄位</th><th>數值</th><th>風險</th></tr></thead>
                 <tbody id="exif-tbody">
                   <tr><td colspan="3" class="empty-row">尚未載入圖片</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
-
           <div class="info-card full-width">
             <div class="card-label">// 脫敏操作</div>
             <div class="sanitize-action-row">
@@ -200,29 +336,21 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════
-         模組三：Web OSINT & URL 安全檢測
-    ═══════════════════════════════════════════════════ -->
-    <section id="module-osint" class="module hidden" aria-label="URL/IP 安全檢測">
+    <!-- MOD_05：Web OSINT -->
+    <section id="module-osint" class="module hidden" aria-label="OSINT 網路情報">
       <div class="module-header">
-        <div class="module-id">MOD_03</div>
-        <h2 class="module-title">Web OSINT & URL 安全檢測</h2>
+        <div class="module-id">MOD_05</div>
+        <h2 class="module-title">Web OSINT & 網路情報</h2>
         <div class="module-desc">HTTP 安全標頭分析 · DNS 多記錄查詢 · 多維度威脅評估</div>
       </div>
-
       <div class="module-body">
         <div class="input-panel">
           <div class="input-row">
             <div class="input-wrapper">
               <span class="input-prefix">TARGET://</span>
-              <input
-                type="text"
-                id="osint-input"
-                class="text-input"
+              <input type="text" id="osint-input" class="text-input"
                 placeholder="輸入 URL 或 IP 位址 (例：example.com 或 8.8.8.8)"
-                autocomplete="off"
-                spellcheck="false"
-              />
+                autocomplete="off" spellcheck="false" />
             </div>
             <button id="osint-scan-btn" class="action-btn primary-btn">
               <span>◎</span> 開始掃描
@@ -230,7 +358,6 @@
           </div>
           <div class="input-hint">支援 http:// · https:// 前綴，或直接輸入域名 / IPv4 / IPv6</div>
         </div>
-
         <div id="osint-results" class="results-panel hidden">
           <div class="results-grid-2col">
             <div class="info-card">
@@ -239,7 +366,7 @@
                 <span class="tag tag-info">ℹ</span>
                 標頭分析透過 <code>securityheaders.com</code> API 端點或後端代理查詢。
               </div>
-              <table class="data-table" id="headers-table">
+              <table class="data-table">
                 <thead><tr><th>標頭名稱</th><th>狀態</th><th>說明</th></tr></thead>
                 <tbody id="headers-tbody"></tbody>
               </table>
@@ -258,7 +385,6 @@
               </div>
             </div>
           </div>
-
           <div class="info-card full-width">
             <div class="card-label">// 綜合安全評估報告</div>
             <div id="osint-report" class="osint-report">
@@ -269,29 +395,21 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════
-         模組四：CVE 漏洞資料庫檢索
-    ═══════════════════════════════════════════════════ -->
+    <!-- MOD_06：CVE 漏洞資料庫 -->
     <section id="module-cve" class="module hidden" aria-label="CVE 漏洞資料庫">
       <div class="module-header">
-        <div class="module-id">MOD_04</div>
+        <div class="module-id">MOD_06</div>
         <h2 class="module-title">CVE 漏洞資料庫檢索</h2>
         <div class="module-desc">串接 NVD API 2.0 · 即時搜尋已知漏洞 · CVSS 嚴重程度評分</div>
       </div>
-
       <div class="module-body">
         <div class="input-panel">
           <div class="input-row">
             <div class="input-wrapper">
               <span class="input-prefix">QUERY://</span>
-              <input
-                type="text"
-                id="cve-input"
-                class="text-input"
+              <input type="text" id="cve-input" class="text-input"
                 placeholder="輸入軟體 / 硬體名稱 (例：Apache Log4j · OpenSSL · Cisco Router)"
-                autocomplete="off"
-                spellcheck="false"
-              />
+                autocomplete="off" spellcheck="false" />
             </div>
             <button id="cve-search-btn" class="action-btn primary-btn">
               <span>◇</span> 搜尋漏洞
@@ -299,20 +417,18 @@
           </div>
           <div class="input-hint">直接輸入 CVE 編號 (CVE-XXXX-XXXXX) 可精確查詢單一漏洞</div>
         </div>
-
         <div id="cve-results" class="results-panel hidden">
-          <div class="cve-summary-bar" id="cve-summary-bar">
+          <div class="cve-summary-bar">
             <span id="cve-total-count">找到 0 個漏洞</span>
             <div class="cve-severity-counts" id="cve-severity-counts"></div>
           </div>
-
           <div class="info-card full-width no-padding">
             <div class="card-label padded">// 漏洞列表</div>
             <div id="cve-loading" class="loading-state hidden">
               <span class="spinner-large">◌</span>
               <span>正在查詢 NVD 資料庫...</span>
             </div>
-            <table class="data-table cve-table" id="cve-table">
+            <table class="data-table cve-table">
               <thead>
                 <tr>
                   <th class="col-cve-id">CVE 編號</th>
@@ -344,7 +460,6 @@
   </footer>
 
   <div id="toast-container" aria-live="polite"></div>
-
   <script src="app.js"></script>
 </body>
 </html>
